@@ -53,28 +53,19 @@ namespace MinecraftNeos
                 case "Wheat":
                 case "Potato":
                 case "Carrot":
-                case "Rail":
-                    return new MinecraftMaterialGroup(false, AlphaHandling.AlphaClip);
-
                 case "Lily_Pad":
                 case "Ladder":
                 case "Monster_Spawner":
                 case "Cactus":
                     return new MinecraftMaterialGroup(true, AlphaHandling.AlphaClip);
-
-                case "Torch":
-                    return new MinecraftMaterialGroup(false, AlphaHandling.Opaque);
             }
 
             var names = NameHeuristicsHelper.SplitName(name);
 
-            if (names.Contains("door"))
+            if (names.Contains("door") || names.Contains("torch"))
                 return new MinecraftMaterialGroup(false, AlphaHandling.AlphaClip);
 
-            if (names.Contains("glass"))
-                return new MinecraftMaterialGroup(true, AlphaHandling.AlphaClip);
-
-            if (names.Contains("leaves"))
+            if (names.Contains("glass") || names.Contains("rail") || names.Contains("leaves"))
                 return new MinecraftMaterialGroup(true, AlphaHandling.AlphaClip);
 
             if (names.Contains("water"))
@@ -83,14 +74,17 @@ namespace MinecraftNeos
             if (names.Contains("ice"))
                 return new MinecraftMaterialGroup(true, AlphaHandling.AlphaBlend);
 
-            if (!names.Contains("block") && !names.Contains("path"))
+            if (names.Contains("redstone") && names.Contains("wire"))
+                return new MinecraftMaterialGroup(false, AlphaHandling.AlphaClip);
+
+            if (!names.Contains("block") && !names.Contains("path") && !names.Contains("ore"))
             {
                 if (names.Contains("grass") || names.Contains("mushroom") || names.Contains("seagrass") 
                     || names.Contains("tallgrass") || names.Contains("rose") || names.Contains("lily")
                     || names.Contains("fern") || names.Contains("bush") || names.Contains("kelp") || names.Contains("daisy")
                     || names.Contains("lilac") || names.Contains("sunflower") || names.Contains("peony")
-                    || names.Contains("dandelion") || names.Contains("poppy")
-                    || name.Contains("fire"))
+                    || names.Contains("dandelion") || names.Contains("poppy") || names.Contains("sapling")
+                    || names.Contains("fire"))
                     return new MinecraftMaterialGroup(false, AlphaHandling.AlphaClip);
 
                 if (names.Contains("snow"))

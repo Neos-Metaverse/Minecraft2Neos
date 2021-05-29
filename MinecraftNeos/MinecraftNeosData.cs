@@ -102,6 +102,15 @@ namespace MinecraftNeos
 
                     lightRoot.LocalPosition = groupLightPos - new float3(GroupSize * 0.5f, 0, GroupSize * 0.5f) + float3.One * 0.5f;
                 }
+
+                // disable them by default since they can be heavy
+                lightsRoot.ActiveSelf = false;
+
+                var lightsVariableDriver = geometryRoot.AttachComponent<DynamicValueVariableDriver<bool>>();
+
+                lightsVariableDriver.VariableName.Value = "World/Minecraft.Lights";
+                lightsVariableDriver.DefaultValue.Value = false;
+                lightsVariableDriver.Target.Target = lightsRoot.ActiveSelf_Field;
             }
 
             modelRoot.Destroy();
@@ -109,10 +118,10 @@ namespace MinecraftNeos
             // Setup culling
             var cullingRoot = root.AddSlot("Culling");
 
-            var trigger = cullingRoot.AttachComponent<BoxCollider>();
+            var trigger = cullingRoot.AttachComponent<SphereCollider>();
 
             trigger.Type.Value = ColliderType.Trigger;
-            trigger.Size.Value = new float3(RENDER_DISTANCE, RENDER_DISTANCE, RENDER_DISTANCE);
+            trigger.Radius.Value = RENDER_DISTANCE;
             trigger.Offset.Value = float3.Up * 128;
 
             var userTracker = cullingRoot.AttachComponent<ColliderUserTracker>();
