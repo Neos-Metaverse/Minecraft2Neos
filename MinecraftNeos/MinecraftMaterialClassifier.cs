@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using FrooxEngine;
 
 namespace MinecraftNeos
@@ -43,16 +44,19 @@ namespace MinecraftNeos
 
     public static class MinecraftMaterialClassifier
     {
+        static HashSet<string> _noCollisionClip = new HashSet<string>()
+        {
+            "grass", "seagrass", "tallgrass",
+            "mushroom", "fern", "bush", "kelp",
+            "rose", "lily", "tulip", "daisy", "lilac", "sunflower", "flower", "peony", "dandelion", "poppy", "orchid", "bluet", "cornflower",
+            "sapling", "potato", "carrot", "wheat", "beet", "cane", "vines", "beetroot",
+            "cobweb", "fire", "vines", 
+        };
+
         public static MinecraftMaterialGroup Classify(string name)
         {
             switch (name)
             {
-                case "Cobweb":
-                case "Vines":
-                case "Sugar_Cane":
-                case "Wheat":
-                case "Potato":
-                case "Carrot":
                 case "Lily_Pad":
                 case "Ladder":
                 case "Monster_Spawner":
@@ -79,12 +83,7 @@ namespace MinecraftNeos
 
             if (!names.Contains("block") && !names.Contains("path") && !names.Contains("ore"))
             {
-                if (names.Contains("grass") || names.Contains("mushroom") || names.Contains("seagrass") 
-                    || names.Contains("tallgrass") || names.Contains("rose") || names.Contains("lily")
-                    || names.Contains("fern") || names.Contains("bush") || names.Contains("kelp") || names.Contains("daisy")
-                    || names.Contains("lilac") || names.Contains("sunflower") || names.Contains("peony")
-                    || names.Contains("dandelion") || names.Contains("poppy") || names.Contains("sapling")
-                    || names.Contains("fire"))
+                if (names.Any(n => _noCollisionClip.Contains(n)))
                     return new MinecraftMaterialGroup(false, AlphaHandling.AlphaClip);
 
                 if (names.Contains("snow"))

@@ -69,7 +69,7 @@ namespace MinecraftNeos
 
             Directory.CreateDirectory(workingDir);
 
-            var groups = await ExportGroups(minewaysExecutable, minecraftWorldPath, workingDir, groupSize, progress);
+            var groups = await ExportGroups(data, minewaysExecutable, minecraftWorldPath, workingDir, groupSize, progress);
 
             await new ToWorld();
 
@@ -108,10 +108,15 @@ namespace MinecraftNeos
                 count++;
             }
 
+            data.FinishImport();
+
+            UniLog.Log($"Minecraft Map Import Finished! Processed chunks: {data.TotalChunkCount}, New/Updated chunks: {data.UpdatedChunkCount}, " +
+                $"Elapsed: {data.Elapsed}");
+
             progress?.ProgressDone("Map imported!");
         }
 
-        static async Task<Dictionary<int2, GroupData>> ExportGroups(string minewaysExe, string minecraftWorldPath, string workingDir, int groupSize, IProgressIndicator progress)
+        static async Task<Dictionary<int2, GroupData>> ExportGroups(MinecraftNeosData data, string minewaysExe, string minecraftWorldPath, string workingDir, int groupSize, IProgressIndicator progress)
         {
             var groupsPath = Path.Combine(workingDir, "Groups");
             var scriptPath = Path.Combine(workingDir, "Script.mwscript");
@@ -172,10 +177,12 @@ namespace MinecraftNeos
                 var chunkStartX = chunk.X * chunkXsize;
                 var chunkStartZ = chunk.Z * chunkZsize;
 
-                var coordinate = new int2(chunkStartX, chunkStartZ);
-                coordinate -= (int2.One * groupSize - 1).Mask(coordinate < 0);
+                var chunkCoordinate = new int2(chunkStartX, chunkStartZ);
 
-                coordinate = coordinate / groupSize;
+                if (!data.ShouldUpdateChunk(chunkCoordinate, chunk.LastUpdate))
+                    continue;
+
+                var coordinate = data.ChunkCoordinateToGroup(chunkCoordinate);
 
                 var groupStartX = coordinate.x * groupSize;
                 var groupStartZ = coordinate.y * groupSize;

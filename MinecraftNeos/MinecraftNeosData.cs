@@ -10,25 +10,104 @@ namespace MinecraftNeos
     public class MinecraftNeosData
     {
         const int RENDER_DISTANCE = 512;
+        const int SEA_LEVEL = 62;
 
         public World World { get; private set; }
         public Slot MapRoot { get; private set; }
         public Slot GroupsRoot { get; private set; }
         public Slot MaterialsRoot { get; private set; }
+        public Slot TimestampRoot { get; private set; }
         public int GroupSize { get; private set; }
+
+        public TimeSpan Elapsed => DateTime.UtcNow - _importStart;
+
+        Dictionary<int2, long> _chunkTimestamps = new Dictionary<int2, long>();
+        Dictionary<int2, long> _newTimestamps = new Dictionary<int2, long>();
+
+        DateTime _importStart;
+        int _processedChunks;
+
+        public int TotalChunkCount => _processedChunks;
+        public int UpdatedChunkCount => _newTimestamps.Count;
 
         public MinecraftNeosData(World world, int groupSize)
         {
             this.World = world;
 
+            _importStart = DateTime.UtcNow;
+
             MapRoot = world.RootSlot.FindOrAdd("Minecraft Map");
 
             // offset by half so it's compatible with the in-game Minecraft snapping blocks
-            MapRoot.LocalPosition -= float3.One * 0.5f;
+            // also make sea level be at 0 Y in Neos
+            MapRoot.LocalPosition = float3.One * -0.5f + float3.Down * SEA_LEVEL;
 
             GroupsRoot = MapRoot.FindOrAdd("Chunk Groups");
             MaterialsRoot = MapRoot.FindOrAdd("Materials");
             GroupSize = groupSize;
+
+            // Scan the chunk timestamps
+            foreach(var group in GroupsRoot.Children)
+            {
+                var timestamps = group.Find("Timestamps");
+
+                if (timestamps == null)
+                    continue;
+
+                foreach(var timestamp in timestamps.Children)
+                {
+                    if (!int2.TryParse(timestamp.Name, out int2 chunkCoordinate))
+                        continue;
+
+                    var timestampField = timestamp.GetComponent<ValueField<long>>();
+
+                    if (timestampField == null)
+                        continue;
+
+                    _chunkTimestamps.Add(chunkCoordinate, timestampField.Value);
+                }
+            }
+        }
+
+        public int2 ChunkCoordinateToGroup(int2 globalChunkCoordinate)
+        {
+            var coordinate = globalChunkCoordinate;
+
+            coordinate -= (int2.One * GroupSize - 1).Mask(coordinate < 0);
+            coordinate = coordinate / GroupSize;
+
+            return coordinate;
+        }
+
+        public bool ShouldUpdateChunk(int2 globalChunkCoordinate, long timestamp)
+        {
+            _processedChunks++;
+
+            if (_chunkTimestamps.TryGetValue(globalChunkCoordinate, out long currentTimestamp) && currentTimestamp == timestamp)
+                return false;
+
+            _newTimestamps.Add(globalChunkCoordinate, timestamp);
+
+            // needs an update
+            return true;
+        }
+
+        public void WriteNewTimestamps()
+        {
+            foreach(var timestamp in _newTimestamps)
+            {
+                var groupCoordinate = ChunkCoordinateToGroup(timestamp.Key);
+                var groupRoot = GetGroupRoot(groupCoordinate);
+
+                var field = groupRoot.FindOrAdd("Timestamps").FindOrAdd(timestamp.Key.ToString()).GetComponentOrAttach<ValueField<long>>();
+
+                field.Value.Value = timestamp.Value;
+            }
+        }
+
+        public void FinishImport()
+        {
+            WriteNewTimestamps();
         }
 
         public Slot GetGroupRoot(int2 coordinate)
