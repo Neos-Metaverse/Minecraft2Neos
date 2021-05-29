@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="BaseX">
+      <HintPath>..\..\..\Neos Framework\BaseX\bin\Release\BaseX.dll</HintPath>
+    </Reference>
+    <Reference Include="CodeX">
+      <HintPath>..\..\..\Neos Framework\CodeX\bin\Release\CodeX.dll</HintPath>
+    </Reference>
+    <Reference Include="FrooxEngine">
+      <HintPath>..\..\..\Neos Framework\FrooxEngine\bin\Release\FrooxEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="Substrate">
+      <HintPath>..\..\..\..\..\Libraries\Substrate\SubstrateCS\bin\Release\NET2\Substrate.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
