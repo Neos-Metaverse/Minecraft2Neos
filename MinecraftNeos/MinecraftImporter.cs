@@ -206,21 +206,21 @@ namespace MinecraftNeos
                     script.AppendLine($@"Export for Rendering: {filePath}");
                 }
 
-                if (!chunk.UsesPalette)
-                {
-                    for (int x = 0; x < chunkXsize; x++)
-                        for (int y = 0; y < chunkYsize; y++)
-                            for (int z = 0; z < chunkZsize; z++)
-                            {
-                                var block = chunk.Blocks.GetBlockRef(x, y, z);
+                //if (!chunk.UsesPalette)
+                //{
+                //    for (int x = 0; x < chunkXsize; x++)
+                //        for (int y = 0; y < chunkYsize; y++)
+                //            for (int z = 0; z < chunkZsize; z++)
+                //            {
+                //                var block = chunk.Blocks.GetBlockRef(x, y, z);
 
-                                if (block.Info == BlockInfo.Torch ||
-                                    block.Info == BlockInfo.Fire)
-                                {
-                                    groupData.lightSources.Add(new int3(x + offsetInGroupX, y, z + offsetInGroupZ));
-                                }
-                            }
-                }
+                //                if (block.Info == BlockInfo.Torch ||
+                //                    block.Info == BlockInfo.Fire)
+                //                {
+                //                    groupData.lightSources.Add(new int3(x + offsetInGroupX, y, z + offsetInGroupZ));
+                //                }
+                //            }
+                //}
             }
 
             script.AppendLine("Close");

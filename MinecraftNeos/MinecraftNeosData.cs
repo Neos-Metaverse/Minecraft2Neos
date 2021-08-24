@@ -199,7 +199,7 @@ namespace MinecraftNeos
 
             var trigger = cullingRoot.AttachComponent<SphereCollider>();
 
-            trigger.Type.Value = ColliderType.Trigger;
+            trigger.Type.Value = ColliderType.StaticTrigger;
             trigger.Radius.Value = RENDER_DISTANCE;
             trigger.Offset.Value = float3.Up * 128;
 
