@@ -75,8 +75,9 @@ namespace MC2Neos
 
             await runner.CreateWorldOrUpdate(new List<string>()
             {
-                "mc2neos",
-                name
+                "Minecraft",
+                "Minecraft2Neos",
+                $"mc2neos:{name}"
             },
             async w =>
             {
